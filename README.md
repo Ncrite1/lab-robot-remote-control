@@ -1,5 +1,4 @@
 # lab-robot-remote-control
-Development of a system for remote activation and monitoring of laboratory robots with a set of demonstration programs
 ## Goal
 
 To develop a secure, reliable, and user-friendly web platform for remote power on/off control, status monitoring, and execution of demonstration programs on laboratory robots.
