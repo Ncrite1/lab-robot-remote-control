@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система управления лабораторными роботами</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <header>
+        <h1>Система удаленного управления роботами</h1>
+    </header>
+
+    <main class="container">
+
+        <!-- Блок управления -->
+        <section class="card">
+            <h2>Управление роботом</h2>
+
+            <div class="status">
+                Статус: 
+                <span id="robotStatus" class="status-indicator off">
+                    Выключен
+                </span>
+            </div>
+
+            <div class="controls">
+                <button id="powerOnBtn" class="btn btn-on">
+                    Включить робота
+                </button>
+                <button id="powerOffBtn" class="btn btn-off">
+                    Выключить робота
+                </button>
+            </div>
+        </section>
+
+        <!-- Блок мониторинга -->
+        <section class="card">
+            <h2>Мониторинг</h2>
+
+            <div class="monitoring">
+                <p>Температура: <span id="temperature">--</span> °C</p>
+                <p>Заряд батареи: <span id="battery">--</span> %</p>
+                <p>Состояние системы: <span id="systemStatus">Ожидание</span></p>
+            </div>
+        </section>
+
+        <!-- Демонстрационные программы -->
+        <section class="card">
+            <h2>Демонстрационные программы</h2>
+
+            <div class="programs">
+                <button class="btn program-btn" data-program="Диагностика">
+                    Диагностика
+                </button>
+                <button class="btn program-btn" data-program="Автономное движение">
+                    Автономное движение
+                </button>
+                <button class="btn program-btn" data-program="Манипуляция объектом">
+                    Манипуляция объектом
+                </button>
+            </div>
+
+            <div class="program-output">
+                <p id="programOutput">Программа не запущена</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
