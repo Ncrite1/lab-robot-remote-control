@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему управления роботом</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+    <div class="login-container">
+
+        <div class="login-card">
+            <h1>Вход в систему управления роботом</h1>
+
+            <form id="loginForm" novalidate>
+
+                <div class="input-group">
+                    <label for="username">Логин</label>
+                    <input type="text" id="username" placeholder="Введите логин">
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" placeholder="Введите пароль">
+                </div>
+
+                <button type="submit" class="login-btn">
+                    Подтвердить
+                </button>
+
+                <p id="loginMessage" class="message"></p>
+
+            </form>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
