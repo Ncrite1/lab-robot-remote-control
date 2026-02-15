@@ -1,0 +1,114 @@
+/* Общие стили */
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background-color: #0f1117;
+    color: #e4e6eb;
+}
+
+/* Заголовок */
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #161b22;
+    border-bottom: 1px solid #2a2f3a;
+}
+
+h1 {
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Контейнер */
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: grid;
+    gap: 25px;
+}
+
+/* Карточки */
+.card {
+    background-color: #161b22;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #2a2f3a;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.card h2 {
+    margin-top: 0;
+    font-weight: 400;
+}
+
+/* Статус */
+.status {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.status-indicator {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.status-indicator.on {
+    background-color: #1f6f3d;
+    color: #fff;
+}
+
+.status-indicator.off {
+    background-color: #8b1e1e;
+    color: #fff;
+}
+
+/* Кнопки */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.btn-on {
+    background-color: #238636;
+    color: white;
+}
+
+.btn-off {
+    background-color: #da3633;
+    color: white;
+}
+
+.program-btn {
+    background-color: #30363d;
+    color: white;
+}
+
+/* Мониторинг */
+.monitoring p {
+    margin: 8px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .controls {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        margin-right: 0;
+    }
+}
