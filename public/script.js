@@ -146,16 +146,8 @@ if (loginForm) {
             });
 
             if (response.status === 200) {
-
-                loginMessage.textContent = "Успешный вход";
-                loginMessage.style.color = "green";
-
                 console.log("Авторизация успешна");
-
-                // раскомментировать при готовом сервере:
-                // const data = await response.json();
-                // localStorage.setItem("token", data.token);
-                // window.location.href = "index.html";
+                window.location.href = "/main";
 
             } else {
 
