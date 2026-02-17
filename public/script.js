@@ -11,7 +11,7 @@ let battery = 100;       // заряд по умолчанию
 
 
 /* ==================================================
-   БЛОК УПРАВЛЕНИЯ РОБОТОМ (index.html)
+   БЛОК УПРАВЛЕНИЯ РОБОТОМ (main.html)
 ================================================== */
 
 const robotStatus = document.getElementById("robotStatus");
@@ -25,11 +25,49 @@ const systemStatusEl = document.getElementById("systemStatus");
 const programButtons = document.querySelectorAll(".program-btn");
 const programOutput = document.getElementById("programOutput");
 
+
+/* ==================================================
+   ОТПРАВКА СОСТОЯНИЯ ПИТАНИЯ НА СЕРВЕР
+================================================== */
+
+async function sendPowerState(state) {
+
+    // Строгая проверка допустимых значений
+    if (state !== "on" && state !== "off") {
+        console.error("Недопустимое значение state:", state);
+        return;
+    }
+
+    try {
+
+        const response = await fetch("http://localhost:3000/power", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ state: state })
+        });
+
+        if (!response.ok) {
+            throw new Error("Ошибка запроса: " + response.status);
+        }
+
+        console.log("Состояние отправлено на сервер:", state);
+
+    } catch (error) {
+        console.error("Ошибка отправки состояния питания:", error);
+    }
+}
+
+
 /* ---- Управление включением ---- */
 
 if (powerOnBtn && powerOffBtn && robotStatus) {
 
-    powerOnBtn.addEventListener("click", () => {
+    powerOnBtn.addEventListener("click", async () => {
+
+        await sendPowerState("on"); // отправка POST
+
         isRobotOn = true;
 
         robotStatus.textContent = "Включен";
@@ -40,10 +78,13 @@ if (powerOnBtn && powerOffBtn && robotStatus) {
             systemStatusEl.textContent = "Система активна";
         }
 
-        updateMonitoring(); // сразу обновляем мониторинг
+        updateMonitoring();
     });
 
-    powerOffBtn.addEventListener("click", () => {
+    powerOffBtn.addEventListener("click", async () => {
+
+        await sendPowerState("off"); // отправка POST
+
         isRobotOn = false;
 
         robotStatus.textContent = "Выключен";
@@ -54,13 +95,13 @@ if (powerOnBtn && powerOffBtn && robotStatus) {
             systemStatusEl.textContent = "Система отключена";
         }
 
-        updateMonitoring(); // обновляем отображение
+        updateMonitoring();
     });
 }
 
 
 /* ==================================================
-   МОНИТОРИНГ (index.html)
+   МОНИТОРИНГ (main.html)
 ================================================== */
 
 function updateMonitoring() {
@@ -73,8 +114,8 @@ function updateMonitoring() {
         return;
     }
 
-    temperatureEl.textContent = temperature.toFixed(1) + " °C";
-    batteryEl.textContent = battery + " %";
+    temperatureEl.textContent = temperature.toFixed(1) + " ";
+    batteryEl.textContent = battery + " ";
 }
 
 // Авто-обновление каждые 2.5 секунды
@@ -82,7 +123,7 @@ setInterval(updateMonitoring, 2500);
 
 
 /* ==================================================
-   ДЕМОНСТРАЦИОННЫЕ ПРОГРАММЫ (index.html)
+   ДЕМОНСТРАЦИОННЫЕ ПРОГРАММЫ (main.html)
 ================================================== */
 
 if (programButtons.length > 0 && programOutput) {
