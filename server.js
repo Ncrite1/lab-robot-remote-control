@@ -21,6 +21,8 @@ app.get("/main", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "main.html"));
 });
 
+const mqttClient = require("./mqtt");
+
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
@@ -39,6 +41,20 @@ app.post("/login", (req, res) => {
     }
 });
 
+app.post("/power", (req, res) => {
+    const { state } = req.body; // "on" или "off"
+
+    if (state !== "on" && state !== "off") {
+        return res.status(400).json({ error: "Invalid state" });
+    }
+
+    // отправляем команду в MQTT
+    mqttClient.publish("robot/power", state);
+
+    console.log("Power command:", state);
+
+    res.json({ success: true });
+});
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
