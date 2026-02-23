@@ -56,6 +56,22 @@ app.post("/power", (req, res) => {
     res.json({ success: true });
 });
 
+app.post("/move", (req, res) => {
+    const { move } = req.body; // "left" или "right" или "home"
+
+    if (move !== "left" && move !== "right" && move !== "home") {
+        return res.status(400).json({ error: "Invalid state" });
+    }
+
+    // отправляем команду в MQTT
+    mqttClient.publish("robot/move", move);
+
+    console.log("Move command:", move);
+
+    res.json({ success: true });
+});
+
+
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");
 });
