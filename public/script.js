@@ -5,10 +5,6 @@
 // Переменная состояния робота
 let isRobotOn = false;
 
-// Данные мониторинга (пока фиксированные)
-let temperature = 25.0;  // температура по умолчанию
-let battery = 100;       // заряд по умолчанию
-
 
 /* ==================================================
    БЛОК УПРАВЛЕНИЯ РОБОТОМ (main.html)
@@ -17,10 +13,6 @@ let battery = 100;       // заряд по умолчанию
 const robotStatus = document.getElementById("robotStatus");
 const powerOnBtn = document.getElementById("powerOnBtn");
 const powerOffBtn = document.getElementById("powerOffBtn");
-
-const temperatureEl = document.getElementById("temperature");
-const batteryEl = document.getElementById("battery");
-const systemStatusEl = document.getElementById("systemStatus");
 
 const programButtons = document.querySelectorAll(".program-btn");
 const programOutput = document.getElementById("programOutput");
@@ -32,7 +24,6 @@ const programOutput = document.getElementById("programOutput");
 
 async function sendPowerState(state) {
 
-    // Строгая проверка допустимых значений
     if (state !== "on" && state !== "off") {
         console.error("Недопустимое значение state:", state);
         return;
@@ -66,60 +57,88 @@ if (powerOnBtn && powerOffBtn && robotStatus) {
 
     powerOnBtn.addEventListener("click", async () => {
 
-        await sendPowerState("on"); // отправка POST
+        await sendPowerState("on");
 
         isRobotOn = true;
 
         robotStatus.textContent = "Включен";
         robotStatus.classList.remove("off");
         robotStatus.classList.add("on");
-
-        if (systemStatusEl) {
-            systemStatusEl.textContent = "Система активна";
-        }
-
-        updateMonitoring();
     });
 
     powerOffBtn.addEventListener("click", async () => {
 
-        await sendPowerState("off"); // отправка POST
+        await sendPowerState("off");
 
         isRobotOn = false;
 
         robotStatus.textContent = "Выключен";
         robotStatus.classList.remove("on");
         robotStatus.classList.add("off");
-
-        if (systemStatusEl) {
-            systemStatusEl.textContent = "Система отключена";
-        }
-
-        updateMonitoring();
     });
 }
 
 
 /* ==================================================
-   МОНИТОРИНГ (main.html)
+   УПРАВЛЕНИЕ ДВИЖЕНИЕМ РОБОТА
 ================================================== */
 
-function updateMonitoring() {
+const moveRightBtn = document.getElementById("moveRightBtn");
+const moveLeftBtn = document.getElementById("moveLeftBtn");
+const moveHomeBtn = document.getElementById("moveHomeBtn");
 
-    if (!temperatureEl || !batteryEl) return;
+async function sendMoveCommand(direction) {
 
-    if (!isRobotOn) {
-        temperatureEl.textContent = "--";
-        batteryEl.textContent = "--";
+    const allowedMoves = ["right", "left", "home"];
+
+    if (!allowedMoves.includes(direction)) {
+        console.error("Недопустимое направление движения:", direction);
         return;
     }
 
-    temperatureEl.textContent = temperature.toFixed(1) + " ";
-    batteryEl.textContent = battery + " ";
+    try {
+
+        const response = await fetch("http://localhost:3000/move", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ move: direction })
+        });
+
+        const result = await response.text();
+
+        if (!response.ok) {
+            throw new Error("Ошибка запроса: " + response.status);
+        }
+
+        console.log("Ответ сервера:", result);
+
+    } catch (error) {
+        console.error("Ошибка отправки команды движения:", error);
+    }
 }
 
-// Авто-обновление каждые 2.5 секунды
-setInterval(updateMonitoring, 2500);
+
+/* ---- Обработчики кнопок движения ---- */
+
+if (moveRightBtn) {
+    moveRightBtn.addEventListener("click", async () => {
+        await sendMoveCommand("right");
+    });
+}
+
+if (moveLeftBtn) {
+    moveLeftBtn.addEventListener("click", async () => {
+        await sendMoveCommand("left");
+    });
+}
+
+if (moveHomeBtn) {
+    moveHomeBtn.addEventListener("click", async () => {
+        await sendMoveCommand("home");
+    });
+}
 
 
 /* ==================================================
@@ -164,17 +183,13 @@ if (loginForm) {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
 
-        // Проверка пустых полей
         if (!username || !password) {
             loginMessage.textContent = "Ошибка: заполните все поля";
             loginMessage.style.color = "red";
             return;
         }
 
-        const loginData = {
-            username: username,
-            password: password
-        };
+        const loginData = { username, password };
 
         try {
 
@@ -189,12 +204,9 @@ if (loginForm) {
             if (response.status === 200) {
                 console.log("Авторизация успешна");
                 window.location.href = "/main";
-
             } else {
-
                 loginMessage.textContent = "Ошибка авторизации";
                 loginMessage.style.color = "red";
-
                 console.warn("Ошибка авторизации. Статус:", response.status);
             }
 
