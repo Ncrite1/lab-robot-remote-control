@@ -1,4 +1,7 @@
-/* Общие стили */
+/* ==================================================
+   ОБЩИЕ СТИЛИ
+================================================== */
+
 body {
     margin: 0;
     font-family: "Segoe UI", sans-serif;
@@ -11,7 +14,7 @@ header {
     text-align: center;
     padding: 20px;
     background-color: #161b22;
-    border-bottom: 1px solid #2a2f3a;
+    border-bottom: 1px solid #1f2937;
 }
 
 h1 {
@@ -19,7 +22,11 @@ h1 {
     font-weight: 400;
 }
 
-/* Контейнер */
+
+/* ==================================================
+   КОНТЕЙНЕР
+================================================== */
+
 .container {
     max-width: 1000px;
     margin: 30px auto;
@@ -28,87 +35,168 @@ h1 {
     gap: 25px;
 }
 
-/* Карточки */
-.card {
-    background-color: #161b22;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #2a2f3a;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+/* ==================================================
+   УНИФИЦИРОВАННЫЕ КАРТОЧКИ
+================================================== */
+
+.card,
+.program-control {
+    padding: 25px;
+    background: #111827;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.08);
 }
 
-.card h2 {
+.card h2,
+.program-control h2 {
     margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
     font-weight: 400;
+    color: #00ffff;
 }
 
-/* Статус */
+
+/* ==================================================
+   СТАТУС РОБОТА
+================================================== */
+
 .status {
     margin-bottom: 15px;
     font-size: 18px;
 }
 
 .status-indicator {
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: bold;
+    transition: 0.3s ease;
 }
 
 .status-indicator.on {
-    background-color: #1f6f3d;
-    color: #fff;
+    background: #065f46;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
 }
 
 .status-indicator.off {
-    background-color: #8b1e1e;
-    color: #fff;
+    background: #7f1d1d;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
 }
 
-/* Кнопки */
-.btn {
-    padding: 10px 15px;
+
+/* ==================================================
+   КНОПКИ (ОБЩИЙ СТИЛЬ)
+================================================== */
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.btn,
+.move-btn {
+    padding: 12px 24px;
+    font-size: 15px;
+    border-radius: 8px;
     border: none;
-    border-radius: 6px;
     cursor: pointer;
+    background: linear-gradient(135deg, #1f2937, #0f172a);
+    color: #ffffff;
+    transition: all 0.3s ease;
     margin-right: 10px;
     margin-top: 10px;
-    font-size: 14px;
-    transition: 0.2s ease;
 }
 
-.btn:hover {
-    opacity: 0.8;
+.btn:hover,
+.move-btn:hover {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    transform: translateY(-2px);
 }
 
+
+/* ==================================================
+   СПЕЦИАЛЬНЫЕ КНОПКИ
+================================================== */
+
+/* Включить */
 .btn-on {
-    background-color: #238636;
-    color: white;
+    background: linear-gradient(135deg, #065f46, #047857);
 }
 
+.btn-on:hover {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+/* Выключить */
 .btn-off {
-    background-color: #da3633;
-    color: white;
+    background: linear-gradient(135deg, #7f1d1d, #991b1b);
 }
 
-.program-btn {
-    background-color: #30363d;
-    color: white;
+.btn-off:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
 
-/* Мониторинг */
-.monitoring p {
-    margin: 8px 0;
+/* Home */
+.move-btn.home {
+    background: linear-gradient(135deg, #1999ee, #dc099d);
 }
 
-/* Адаптивность */
+.move-btn.home:hover {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+
+/* ==================================================
+   ДЕМОНСТРАЦИОННЫЕ ПРОГРАММЫ
+================================================== */
+
+.program-output {
+    margin-top: 15px;
+    padding: 10px;
+    background: #0f172a;
+    border-radius: 6px;
+    border: 1px solid #1f2937;
+}
+
+
+/* ==================================================
+   УПРАВЛЕНИЕ ДВИЖЕНИЕМ
+================================================== */
+
+.movement-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+/* ==================================================
+   АДАПТИВНОСТЬ
+================================================== */
+
 @media (max-width: 600px) {
+
     .controls {
-        display: flex;
         flex-direction: column;
     }
 
     .btn {
         width: 100%;
         margin-right: 0;
+    }
+
+    .movement-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .move-btn {
+        width: 100%;
+        max-width: 250px;
     }
 }
