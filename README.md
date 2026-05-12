@@ -1,78 +1,552 @@
-# lab-robot-remote-control
-## Goal
+# Lab-robot-remote-control (AM-521)
 
-To develop a secure, reliable, and user-friendly web platform for remote power on/off control, status monitoring, and execution of demonstration programs on laboratory robots.
+## Описание проекта
 
----
+Этот проект реализует взаимодействие между серверром и PLC с помощью шлюза между MQTT и PLC AM-521 через Modbus TCP.
 
-## 1. Requirements Analysis and Architecture Design
+Архитектура:
 
-### 1.1. Specification Definition
-- Identification of robot types and their control interfaces (GPIO, USB, ROS, Ethernet, etc.).
-- Definition of monitored parameters (temperature, battery level, relay status, operational logs).
-- Collection of requirements for demonstration programs (capabilities each robot must perform upon command).
+```text
+MQTT (Mosquitto)
+        ↓
+Node-RED
+        ↓
+Modbus TCP Server
+        ↓
+PLC AM-521 (Modbus TCP Master)
+```
 
-### 1.2. Technology Selection and System Design
-- Selection of the technology stack.
-- Design of the interaction scheme:  
-  User ↔ Web Server ↔ Gateway/Agent (Raspberry Pi / PC) ↔ Robot.
-- Design of the database structure for storing logs, robot states, and task schedules.
-- Development of a communication protocol between the server and robot agents (REST API, WebSocket, MQTT).
+PLC не поддерживает MQTT напрямую, поэтому Node-RED используется как промежуточный сервер:
 
----
-
-## 2. Backend and Agent Development
-
-### 2.1. Web Server Core Development
-- Implementation of APIs for managing users, robots, and tasks.
-- Development of authentication and authorization mechanisms (role-based access: administrator, operator, viewer).
-
-### 2.2. Robot Agent Development
-- Development of lightweight agent applications installed on a gateway near the robot or directly on the robot.
-- Receiving commands from the server.
-- Physical power on/off control via relays or controllers.
-- Telemetry data collection.
-- Execution of local robot scripts.
-- Ensuring secure (encrypted) and stable communication with the central server.
+* получает MQTT сообщения
+* преобразует их
+* записывает значения в Modbus регистры
+* PLC считывает эти регистры
 
 ---
 
-## 3. Client-Side Web Interface (Frontend) Development
+# Как работает система
 
-### 3.1. Control Dashboard Development
-- Design of an intuitive UI with a dashboard displaying the status of all robots (traffic-light system: online / offline / error).
-- Implementation of controls for manual power on/off of each robot.
-- Development of monitoring data visualization components (charts, real-time logs).
+MQTT отправляет:
 
-### 3.2. Demonstration Program Interface
-- Development of an interface for launching predefined demonstration programs on selected robots.
-- Ability to view video or image streams from robot cameras (if available).
+```text
+left
+right
+home
+```
+
+Node-RED преобразует:
+
+```text
+left  → 1
+right → 2
+home  → 3
+```
+
+Значение записывается в:
+
+```text
+Holding Register 0
+```
+
+PLC читает:
+
+```text
+Holding Register 0
+```
+
+и получает:
+
+```text
+1 / 2 / 3
+```
 
 ---
 
-## 4. System Integration and Demonstration Program Development
+# Требования
 
-### 4.1. System-Wide Integration
-- Connection of all laboratory robots to the system via their agents.
-- End-to-end testing of the full workflow:  
-  Web interface → server → agent → robot action → telemetry feedback.
-- Configuration of notification mechanisms for critical system states.
+## Linux
 
-### 4.2. Demonstration Program Implementation
-- Development or adaptation of scripts and programs for each robot.
-- Integration of demonstration programs into the system with configuration files and web-based execution.
+Проект тестировался на:
+
+* Ubuntu 22.04
+* Debian 12
 
 ---
 
-## 5. Testing, Documentation, and Deployment
+# Установка зависимостей
 
-### 5.1. Comprehensive Testing
-- Security testing and protection against unauthorized access.
-- Load testing and stability verification under concurrent robot operation.
-- Fault tolerance testing (connection loss, robot reboot).
+## 1. Установка Node.js и npm
 
-### 5.2. Project Finalization
-- Preparation of user and technical documentation.
-- Training laboratory personnel.
-- Deployment of the final system version on a production server.
-- Planning of future system development stages.
+```bash
+sudo apt update
+sudo apt install nodejs npm
+```
+
+Проверка:
+
+```bash
+node -v
+npm -v
+```
+
+---
+
+## 2. Установка Node-RED
+
+```bash
+sudo npm install -g --unsafe-perm node-red
+```
+
+Запуск:
+
+```bash
+node-red
+```
+
+Node-RED будет доступен:
+
+```text
+http://localhost:1880
+```
+
+---
+
+## 3. Установка Mosquitto MQTT broker
+
+```bash
+sudo apt install mosquitto mosquitto-clients
+```
+
+Автозапуск:
+
+```bash
+sudo systemctl enable mosquitto
+sudo systemctl start mosquitto
+```
+
+Проверка:
+
+```bash
+systemctl status mosquitto
+```
+
+---
+
+## 4. Установка Modbus nodes для Node-RED
+
+Перейти в директорию Node-RED:
+
+```bash
+cd ~/.node-red
+```
+
+Установить:
+
+```bash
+npm install node-red-contrib-modbus
+```
+
+Перезапустить Node-RED:
+
+```bash
+node-red
+```
+
+---
+
+# Настройка Node-RED
+
+## Используемые nodes
+
+Проект использует:
+
+* MQTT in
+* Function
+* Modbus Server
+* Modbus Flex Write
+* Modbus Read
+* Debug
+
+---
+
+# Настройка MQTT IN
+
+## Broker
+
+```text
+localhost:1883
+```
+
+## Topic
+
+Пример:
+
+```text
+plc/control
+```
+
+---
+
+# Function: преобразование MQTT значений
+
+```javascript
+let map = {
+    "left": 1,
+    "right": 2,
+    "home": 3
+};
+
+msg.payload = map[msg.payload] || 0;
+
+return msg;
+```
+
+---
+
+# Function: запись в Modbus register
+
+```javascript
+msg.payload = {
+    value: msg.payload,
+    fc: 6,
+    unitid: 1,
+    address: 0,
+    quantity: 1
+};
+
+return msg;
+```
+
+---
+
+# Настройка Modbus Server
+
+## Host
+
+```text
+0.0.0.0
+```
+
+## Port
+
+```text
+502
+```
+
+Если Linux запрещает использование 502:
+
+используйте:
+
+```text
+1502
+```
+
+## Holding Registers
+
+```text
+10
+```
+
+---
+
+# Настройка Modbus Flex Write
+
+## Host
+
+```text
+127.0.0.1
+```
+
+## Port
+
+```text
+502
+```
+
+или:
+
+```text
+1502
+```
+
+---
+
+# Проверка через Node-RED
+
+Схема:
+
+```text
+Inject
+   ↓
+Modbus Read
+   ↓
+Debug
+```
+
+## Настройки Modbus Read
+
+### Host
+
+```text
+127.0.0.1
+```
+
+### Port
+
+```text
+502
+```
+
+### Function Code
+
+```text
+FC3 Read Holding Registers
+```
+
+### Address
+
+```text
+0
+```
+
+### Quantity
+
+```text
+1
+```
+
+---
+
+# Проверка MQTT
+
+Отправить тестовое сообщение:
+
+```bash
+mosquitto_pub -h localhost -t plc/control -m "left"
+```
+
+Ожидаемый результат:
+
+```text
+Holding Register 0 = 1
+```
+
+---
+
+# Настройка PLC AM-521
+
+## PLC должен работать как:
+
+```text
+Modbus TCP Master
+```
+
+---
+
+# Настройка Slave в InoProShop
+
+## Slave IP
+
+IP Linux сервера.
+
+Пример:
+
+```text
+192.168.10.2
+```
+
+## Port
+
+```text
+502
+```
+
+или:
+
+```text
+1502
+```
+
+## Unit ID
+
+```text
+1
+```
+
+---
+
+# Настройка Channel
+
+## Access Type
+
+```text
+Read Holding Registers
+```
+
+## Function Code
+
+```text
+03
+```
+
+## Address
+
+```text
+0
+```
+
+## Length
+
+```text
+1
+```
+
+## Trigger
+
+```text
+Cyclic
+```
+
+## Cycle Time
+
+```text
+100 ms
+```
+
+---
+
+# Привязка к PLC переменной
+
+Пример:
+
+```text
+MW10
+```
+
+Результат:
+
+```text
+Holding Register 0 → MW10
+```
+
+---
+
+# Проверка сети
+
+## Проверка IP
+
+```bash
+ip a
+```
+
+## Проверка соединения с PLC
+
+```bash
+ping 192.168.10.10
+```
+
+---
+
+# Проверка открытого порта Modbus
+
+```bash
+sudo ss -tulpn | grep 502
+```
+
+---
+
+# Firewall
+
+Если используется UFW:
+
+```bash
+sudo ufw allow 502/tcp
+```
+
+или:
+
+```bash
+sudo ufw allow 1502/tcp
+```
+
+---
+
+# Итоговая схема
+
+```text
+MQTT (Mosquitto)
+        ↓
+Node-RED
+        ↓
+Modbus TCP Server
+        ↓
+PLC AM-521
+```
+
+---
+
+# Пример полного процесса
+
+MQTT:
+
+```text
+right
+```
+
+Node-RED:
+
+```text
+right → 2
+```
+
+Modbus:
+
+```text
+Holding Register 0 = 2
+```
+
+PLC:
+
+```text
+MW10 = 2
+```
+
+---
+
+## Запуск Node-RED
+
+```bash
+node-red
+```
+
+## Остановка Node-RED
+
+```bash
+CTRL + C
+```
+
+## Проверка MQTT
+
+```bash
+mosquitto_sub -h localhost -t plc/control
+```
+
+## Отправка MQTT
+
+```bash
+mosquitto_pub -h localhost -t plc/control -m "home"
+```
+
+Node-RED работает как мост между MQTT и PLC.
+
+---
+
+##Пример работы проекта
+
+
+https://github.com/user-attachments/assets/de8ab48a-00eb-482d-b912-af754412e9b8
+
+
+
+
